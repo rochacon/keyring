@@ -248,3 +248,36 @@ func TestPassKeyringKeysWithSymlink(t *testing.T) {
 		t.Fatalf("Expected keys %v, got %v", expectedKeys, keys)
 	}
 }
+
+func TestPassKeyringFilenameExtension(t *testing.T) {
+	k, teardown := setup(t)
+	defer teardown(t)
+
+	tests := map[string]struct {
+		extension string
+		expected  string
+	}{
+		"default extension to .gpg": {
+			extension: "",
+			expected:  ".gpg",
+		},
+		"custom extension: .age": {
+			extension: ".age",
+			expected:  ".age",
+		},
+		"explicit extension: .gpg": {
+			extension: ".gpg",
+			expected:  ".gpg",
+		},
+	}
+
+	for name, test := range tests {
+		t.Run(name, func(tt *testing.T) {
+			k.filenameExt = test.extension
+
+			if got := k.ext(); test.expected != got {
+				tt.Fatalf("expected %q got %q", test.expected, got)
+			}
+		})
+	}
+}

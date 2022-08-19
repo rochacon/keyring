@@ -18,9 +18,10 @@ func init() {
 		var err error
 
 		pass := &passKeyring{
-			passcmd: cfg.PassCmd,
-			dir:     cfg.PassDir,
-			prefix:  cfg.PassPrefix,
+			dir:         cfg.PassDir,
+			filenameExt: cfg.PassFilenameExtension,
+			passcmd:     cfg.PassCmd,
+			prefix:      cfg.PassPrefix,
 		}
 
 		if pass.passcmd == "" {
@@ -55,9 +56,17 @@ func init() {
 }
 
 type passKeyring struct {
-	dir     string
-	passcmd string
-	prefix  string
+	dir         string
+	filenameExt string
+	passcmd     string
+	prefix      string
+}
+
+func (k passKeyring) ext() string {
+	if k.filenameExt != "" {
+		return k.filenameExt
+	}
+	return ".gpg"
 }
 
 func (k *passKeyring) pass(args ...string) *exec.Cmd {
@@ -126,7 +135,7 @@ func (k *passKeyring) Remove(key string) error {
 }
 
 func (k *passKeyring) itemExists(key string) bool {
-	var path = filepath.Join(k.dir, k.prefix, key+".gpg")
+	var path = filepath.Join(k.dir, k.prefix, key+k.ext())
 	_, err := os.Stat(path)
 
 	return err == nil
@@ -152,7 +161,7 @@ func (k *passKeyring) Keys() ([]string, error) {
 			return err
 		}
 
-		if !info.IsDir() && filepath.Ext(p) == ".gpg" {
+		if !info.IsDir() && filepath.Ext(p) == k.ext() {
 			name := strings.TrimPrefix(p, path)
 			if name[0] == os.PathSeparator {
 				name = name[1:]

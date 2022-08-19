@@ -50,6 +50,9 @@ type Config struct {
 	// PassCmd is the name of the pass executable
 	PassCmd string
 
+	// PassFilenameExtension is a string suffix to append to the item path stored in pass. Defaults to .gpg
+	PassFilenameExtension string
+
 	// PassPrefix is a string prefix to prepend to the item path stored in pass
 	PassPrefix string
 
